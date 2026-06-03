@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard Monitoring UAT</title>
+  <style>
+    :root {
+      --bg: #f5f7f8;
+      --panel: #ffffff;
+      --text: #172026;
+      --muted: #65737e;
+      --line: #dce3e7;
+      --green: #12805c;
+      --blue: #2264a7;
+      --amber: #b66a00;
+      --red: #b42318;
+      --ink: #27323a;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.4;
+    }
+
+    header {
+      background: #172026;
+      color: #ffffff;
+      padding: 24px 28px;
+    }
+
+    header h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    header p {
+      margin: 0;
+      color: #d7dee2;
+      max-width: 980px;
+      font-size: 14px;
+    }
+
+    main {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 22px;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(160px, 1fr));
+      gap: 12px;
+      align-items: end;
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    select,
+    input {
+      min-height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #ffffff;
+      color: var(--text);
+      padding: 8px 10px;
+      font-size: 14px;
+      width: 100%;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(160px, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .kpi {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      min-height: 108px;
+    }
+
+    .kpi .label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .kpi .value {
+      margin-top: 10px;
+      color: var(--ink);
+      font-size: 30px;
+      font-weight: 700;
+    }
+
+    .kpi .note {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .section {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      min-width: 0;
+    }
+
+    .section h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+
+    .progress-wrap {
+      display: grid;
+      grid-template-columns: 160px 1fr 64px;
+      gap: 10px;
+      align-items: center;
+      margin: 10px 0;
+      font-size: 13px;
+    }
+
+    .bar {
+      height: 12px;
+      background: #e8eef1;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: var(--green);
+    }
+
+    .donut-row {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 18px;
+      align-items: center;
+    }
+
+    .donut {
+      width: 148px;
+      height: 148px;
+      border-radius: 50%;
+      background: conic-gradient(var(--green) 0deg, var(--green) 0deg, #e8eef1 0deg);
+      display: grid;
+      place-items: center;
+      position: relative;
+    }
+
+    .donut::after {
+      content: "";
+      position: absolute;
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      background: #ffffff;
+    }
+
+    .donut strong {
+      position: relative;
+      z-index: 1;
+      font-size: 24px;
+    }
+
+    .status-list {
+      display: grid;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .table-section {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .table-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .table-head h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 960px;
+      font-size: 13px;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f0f4f6;
+      color: #42515b;
+      font-size: 12px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    td.number {
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .badge {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 4px 8px;
+      background: #e8f4ef;
+      color: var(--green);
+      font-weight: 700;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .notes {
+      max-width: 420px;
+      white-space: pre-wrap;
+    }
+
+    .source {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    footer {
+      color: var(--muted);
+      font-size: 12px;
+      padding: 16px 0 4px;
+    }
+
+    @media (max-width: 920px) {
+      main {
+        padding: 14px;
+      }
+
+      .toolbar,
+      .kpi-grid,
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .progress-wrap {
+        grid-template-columns: 112px 1fr 56px;
+      }
+
+      .donut-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Dashboard Monitoring UAT</h1>
+    <p>Ringkasan progress UAT per project untuk PMO dan User. Data diambil dari folder <strong>data</strong>, sheet <strong>Dashboard Progress</strong>, lalu dihitung ulang dari tabel skenario utama.</p>
+  </header>
+
+  <main>
+    <section class="toolbar" aria-label="Filter dashboard">
+      <label>
+        Project
+        <select id="projectFilter"></select>
+      </label>
+      <label>
+        PIC
+        <select id="picFilter"></select>
+      </label>
+      <label>
+        Status
+        <select id="statusFilter"></select>
+      </label>
+      <label>
+        Cari Scenario / Notes
+        <input id="searchFilter" type="search" placeholder="Ketik kata kunci">
+      </label>
+    </section>
+
+    <section class="kpi-grid">
+      <article class="kpi">
+        <div class="label">Progress Task</div>
+        <div class="value" id="kpiProgress">0%</div>
+        <div class="note" id="kpiTaskNote">0 dari 0 task selesai</div>
+      </article>
+      <article class="kpi">
+        <div class="label">Scenario Done</div>
+        <div class="value" id="kpiDone">0</div>
+        <div class="note" id="kpiDoneNote">0 scenario belum done</div>
+      </article>
+      <article class="kpi">
+        <div class="label">Total Scenario</div>
+        <div class="value" id="kpiScenario">0</div>
+        <div class="note" id="kpiProjectNote">0 project aktif</div>
+      </article>
+      <article class="kpi">
+        <div class="label">Data Terakhir</div>
+        <div class="value" id="kpiFreshness">-</div>
+        <div class="note">Berdasarkan waktu modifikasi file Excel</div>
+      </article>
+    </section>
+
+    <section class="grid">
+      <article class="section">
+        <h2>Overall Completion</h2>
+        <div class="donut-row">
+          <div class="donut" id="overallDonut"><strong id="donutText">0%</strong></div>
+          <div class="status-list" id="overallNarrative"></div>
+        </div>
+      </article>
+
+      <article class="section">
+        <h2>Progress per PIC</h2>
+        <div id="picChart"></div>
+      </article>
+    </section>
+
+    <section class="grid">
+      <article class="section">
+        <h2>Progress per Project</h2>
+        <div id="projectChart"></div>
+      </article>
+
+      <article class="section">
+        <h2>Distribusi Status</h2>
+        <div id="statusChart"></div>
+      </article>
+    </section>
+
+    <section class="table-section">
+      <div class="table-head">
+        <h2>Detail Scenario UAT</h2>
+        <span class="source" id="tableCount">0 data</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Project</th>
+              <th>No</th>
+              <th>Scenario</th>
+              <th>Total Task</th>
+              <th>Task Done</th>
+              <th>Progress</th>
+              <th>Status</th>
+              <th>PIC</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody id="detailTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer>
+      Dibuat: 2026-06-03 15:01. Source: semua workbook .xlsx di folder data dengan sheet Dashboard Progress.
+    </footer>
+  </main>
+
+  <script>
+    const dashboardData = {"summary": {"total_projects": 1, "total_scenarios": 29, "done_scenarios": 29, "open_scenarios": 0, "total_tasks": 104, "task_done": 104, "task_open": 0, "progress": 100.0, "latest_source_modified": "2026-05-07 03:57"}, "projects": ["PRJ20260012 - Leadsync dan CRM"], "pics": ["Affi", "Izzat", "Kevin", "Rasya"], "statuses": ["Done"], "project_summary": [{"Project": "PRJ20260012 - Leadsync dan CRM", "scenarios": 29, "total_task": 104, "task_done": 104, "progress": 100.0}], "pic_summary": [{"PIC": "Affi", "scenarios": 11, "total_task": 39, "task_done": 39, "progress": 100.0}, {"PIC": "Izzat", "scenarios": 2, "total_task": 9, "task_done": 9, "progress": 100.0}, {"PIC": "Kevin", "scenarios": 10, "total_task": 33, "task_done": 33, "progress": 100.0}, {"PIC": "Rasya", "scenarios": 6, "total_task": 23, "task_done": 23, "progress": 100.0}], "status_summary": [{"Status": "Done", "scenarios": 29, "total_task": 104, "task_done": 104, "progress": 100.0}], "rows": [{"Project": "PRJ20260012 - Leadsync dan CRM", "No": 1, "Scenario ID": "CRM001", "Total Task": 3, "Task Done": 3, "Progress": 100.0, "Status": "Done", "PIC": "Rasya", "Notes": "28/04/2026: Done", "Source File": "UAT Scenarios - PRJ20260012 - Leadsync dan CRM.xlsx", "Source Modified": "2026-05-07 03:57"}, {"Project": "PRJ20260012 - Leadsync dan CRM", "No": 2, "Scenario ID": "CRM002", "Total Task": 3, "Task Done": 3, "Progress": 100.0, "Status": "Done", "PIC": "Kevin", "Notes": "", "Source File": "UAT Scenarios - PRJ20260012 - Leadsync dan CRM.xlsx", "Source Modified": "2026-05-07 03:57"}, {"Project": "PRJ20260012 - Leadsync dan CRM", "No": 3, "Scenario ID": "CRM003", "Total Task": 3, "Task Done": 3, "Progress": 100.0, "Status": "Done", "PIC": "Affi", "Notes": "", "Source File": "UAT Scenarios - PRJ20260012 - Leadsync dan CRM.xlsx", "Source Modified": "2026-05-07 03:57"}, {"Project": "PRJ20260012 - Leadsync dan CRM", "No": 4, "Scenario ID": "CRM004", "Total Task": 3, "Task Done": 3, "Progress": 100.0, "Status": "Done", "PIC": "Kevin", "Notes": "untuk menu leadsync BM akan didevelopment saat BRD Captive berjalan", "Source File": "UAT Scenarios - PRJ20260012 - Leadsync dan CRM.xlsx", "Source Modified": "2026-05-07 03:57"}, {"Project": "PRJ20260012 - Leadsync dan CRM", "No": 5, "Scenario ID": "CRM005", "Total Task": 2, "Task Done": 2, "Progress": 100.0, "Status": "Done", "PIC": "Kevin", "Notes": "Invalid Skenario, dianggap Done", "Source File": "UAT Scenarios - PRJ20260012 - Leadsync dan CRM.xlsx", "Source Modified": "2026-05-07 03:57"}, {"Project": "PRJ20260012 - Leadsync dan CRM", "No": 6, "Scenario ID": "CRM006", "Total Task": 4, "Task Done": 4, "Progress": 100.0, "Status": "Done", "PIC": "Izzat", "Notes": "", "Source File": "UAT Scenarios - PRJ20260012 - Leadsync dan CRM.xlsx", "Source Modified": "2026-05-07 03:57"}, {"Project": "PRJ20260012 - Leadsync dan CRM", "No": 7, "Scenario ID": "CRM007", "Total Task": 5, "Task Done": 5, "Progress": 100.0, "Status": "Done", "PIC": "Izzat", "Notes": "", "Source File": "UAT Scenarios - PRJ20260012 - Leadsync dan CRM.xlsx", "Source Modified": "2026-05-07 03:57"}, {"Project": "PRJ20260012 - Leadsync dan CRM", "No": 8, "Scenario ID": "CRM008", "Total Task": 5, "Task Done": 5, "Progress": 100.0, "Status": "Done", "PIC": "Rasya", "Notes": "PK005 : Done\n\n21/04/2026 :\nPK006 : InProgress UAT, SC1 Null akan dilanjutkan kembali\n\n22/04/2026:\nPK006: DONE", "Source File": "UAT Scenarios - PRJ20260012 - Leadsync dan CRM.xlsx", "Source Modified": "2026-05-07 03:57"}, {"Project": "PRJ20260012 - Leadsync dan CRM", "No": 9, "Scenario ID": "CRM009", "Total Task": 5, "Task Done": 5, "Progress": 100.0, "Status": "Done", "PIC": "Affi", "Notes": "PK007 : Done\nPK008 : Done", "Source File": "UAT Scenarios - PRJ20260012 - Leadsync dan CRM.xlsx", "Source Modified": "2026-05-07 03:57"}, {"Project": "PRJ20260012 - Leadsync dan CRM", "No": 10, "Scenario ID": "CRM010", "Total Task": 5, "Task Done": 5, "Progress": 100.0, "Status": "Done", "PIC": "Rasya", "Notes": "24/04/2026:\nDONE", "Source File": "UAT Scenarios - PRJ20260012 - Leadsync dan CRM.xlsx", "Source Modified": "2026-05-07 03:57"}, {"Project": "PRJ20260012 - Leadsync dan CRM", "No": 11, "Scenario ID": "CRM011", "Total Task": 5, "Task Done": 5, "Progress": 100.0, "Status": "Done", "PIC": "Affi", "Notes": "Hold PPD tgl server Env E dipakai project lain", "Source File": "UAT Scenarios - PRJ20260012 - Leadsync dan CRM.xlsx", "Source Modified": "2026-05-07 03:57"}, {"Project": "PRJ20260012 - Leadsync dan CRM", "No": 12, "Scenario ID": "CRM012", "Total Task": 5, "Task Done": 5, "Progress": 100.0, "Status": "Done", "PIC": "Kevin", "Notes": "1. Muncul notif gagal proses ketika dilakukan approval di L1 dan ketika di check datanya sudah hilang\n\n21/04/2026 :\n- InProgress UAT, terdapat issue di CA sebelumnya dan saat ini masih ongoing proses sesuai skenario pada tahap RTRE", "Source File": "UAT Scenarios - PRJ20260012 - Leadsync dan CRM.xlsx", "Source Modified": "2026-05-07 03:57"}, {"Project": "PRJ20260012 - Leadsync dan CRM", "No": 13, "Scenario ID": "CRM013", "Total Task": 5, "Task Done": 5, "Progress": 100.0, "Status": "Done", "PIC": "Affi", "Notes": "", "Source File": "UAT Scenarios - PRJ20260012 - Leadsync dan CRM.xlsx", "Source Modified": "2026-05-07 03:57"}, {"Project": "PRJ20260012 - Leadsync dan CRM", "No": 14, "Scenario ID": "CRM014", "Total Task": 4, "Task Done": 4, "Progress": 100.0, "Status": "Done", "PIC": "Rasya", "Notes": "21/04/2026 :\n- Masih UAT Open, karena terhold issue MASS Mobile", "Source File": "UAT Scenarios - PRJ20260012 - Leadsync dan CRM.xlsx", "Source Modified": "2026-05-07 03:57"}, {"Project": "PRJ20260012 - Leadsync dan CRM", "No": 15, "Scenario ID": "CRM015", "Total Task": 3, "Task Done": 3, "Progress": 100.0, "Status": "Done", "PIC": "Affi", "Notes": "1. Cancel CA = Done\n2. Reject CA = Done", "Source File": "UAT Scenarios - PRJ20260012 - Leadsync dan CRM.xlsx", "Source Modified": "2026-05-07 03:57"}, {"Project": "PRJ20260012 - Leadsync dan CRM", "No": 16, "Scenario ID": "CRM016", "Total Task": 3, "Task Done": 3, "Progress": 100.0, "Status": "Done", "PIC": "Rasya", "Notes": "Issue setelah melakukan cancel reguler survey\n\n21/04/2026 :\n- Sudah sampai tahap akhir skenario untuk Cancel Reguler Survey, tetapi terdapat issue disisi Leadsync untuk handle kiriman callback Cancel RegSur. Untuk kondisi ini sudah perbaikan dan akan diretest\n\n21/04/2026 (17:28): DONE", "Source File": "UAT Scenarios - PRJ20260012 - Leadsync dan CRM.xlsx", "Source Modified": "2026-05-07 03:57"}, {"Project": "PRJ20260012 - Leadsync dan CRM", "No": 17, "Scenario ID": "CRM017", "Total Task": 3, "Task Done": 3, "Progress": 100.0, "Status": "Done", "PIC": "Affi", "Notes": "", "Source File": "UAT Scenarios - PRJ20260012 - Leadsync dan CRM.xlsx", "Source Modified": "2026-05-07 03:57"}, {"Project": "PRJ20260012 - Leadsync dan CRM", "No": 18, "Scenario ID": "CRM018", "Total Task": 3, "Task Done": 3, "Progress": 100.0, "Status": "Done", "PIC": "Kevin", "Notes": "Issue pada MASS mobile envi e karena KYC hanya bisa di reject di mobile\n\n21/04/2026 :\n- Issue ketika sudah Reject KYC, tetapi kondisi di Leadsync belum terupdate Trackingnya", "Source File": "UAT Scenarios - PRJ20260012 - Leadsync dan CRM.xlsx", "Source Modified": "2026-05-07 03:57"}, {"Project": "PRJ20260012 - Leadsync dan CRM", "No": 19, "Scenario ID": "CRM019", "Total Task": 3, "Task Done": 3, "Progress": 100.0, "Status": "Done", "PIC": "Affi", "Notes": "Issue Submit Create MCS ACQ\n\n21/04/2026 : \n- Masih InProgress, data sudah masuk KYC sempat ke Hold karena issue MASS Mobile", "Source File": "UAT Scenarios - PRJ20260012 - Leadsync dan CRM.xlsx", "Source Modified": "2026-05-07 03:57"}, {"Project": "PRJ20260012 - Leadsync dan CRM", "No": 20, "Scenario ID": "CRM020", "Total Task": 3, "Task Done": 3, "Progress": 100.0, "Status": "Done", "PIC": "Kevin", "Notes": "Issue pada MASS mobile envi e karena Cancel dan reject Screening 1 harus menggunakan mass mobile", "Source File": "UAT Scenarios - PRJ20260012 - Leadsync dan CRM.xlsx", "Source Modified": "2026-05-07 03:57"}, {"Project": "PRJ20260012 - Leadsync dan CRM", "No": 21, "Scenario ID": "CRM021", "Total Task": 3, "Task Done": 3, "Progress": 100.0, "Status": "Done", "PIC": "Affi", "Notes": "Issue callback tracking MASS Reject tidak terupdate", "Source File": "UAT Scenarios - PRJ20260012 - Leadsync dan CRM.xlsx", "Source Modified": "2026-05-07 03:57"}, {"Project": "PRJ20260012 - Leadsync dan CRM", "No": 22, "Scenario ID": "CRM022", "Total Task": 3, "Task Done": 3, "Progress": 100.0, "Status": "Done", "PIC": "Rasya", "Notes": "23/04/2026: Done", "Source File": "UAT Scenarios - PRJ20260012 - Leadsync dan CRM.xlsx", "Source Modified": "2026-05-07 03:57"}, {"Project": "PRJ20260012 - Leadsync dan CRM", "No": 23, "Scenario ID": "CRM023", "Total Task": 3, "Task Done": 3, "Progress": 100.0, "Status": "Done", "PIC": "Affi", "Notes": "Waiting apk MASS Mobile Env E Generate Ulang\n\n21/04/2026 :\n- InProgress UAT, makesure perubahan 2 data, tinggal pengecekan di SC3 terhold karena issue MASS Mobile untuk proses KYC dan RegSur\n\n22/04/2026 :\n- InProgress UAT, data sudah dilakukan update di SC3 namun di UI Tracking Order Leadsycn tidak terupdate", "Source File": "UAT Scenarios - PRJ20260012 - Leadsync dan CRM.xlsx", "Source Modified": "2026-05-07 03:57"}, {"Project": "PRJ20260012 - Leadsync dan CRM", "No": 24, "Scenario ID": "CRM024", "Total Task": 3, "Task Done": 3, "Progress": 100.0, "Status": "Done", "PIC": "Kevin", "Notes": "", "Source File": "UAT Scenarios - PRJ20260012 - Leadsync dan CRM.xlsx", "Source Modified": "2026-05-07 03:57"}, {"Project": "PRJ20260012 - Leadsync dan CRM", "No": 25, "Scenario ID": "CRM025", "Total Task": 3, "Task Done": 3, "Progress": 100.0, "Status": "Done", "PIC": "Affi", "Notes": "", "Source File": "UAT Scenarios - PRJ20260012 - Leadsync dan CRM.xlsx", "Source Modified": "2026-05-07 03:57"}, {"Project": "PRJ20260012 - Leadsync dan CRM", "No": 26, "Scenario ID": "CRM026", "Total Task": 5, "Task Done": 5, "Progress": 100.0, "Status": "Done", "PIC": "Kevin", "Notes": "", "Source File": "UAT Scenarios - PRJ20260012 - Leadsync dan CRM.xlsx", "Source Modified": "2026-05-07 03:57"}, {"Project": "PRJ20260012 - Leadsync dan CRM", "No": 27, "Scenario ID": "CRM027", "Total Task": 3, "Task Done": 3, "Progress": 100.0, "Status": "Done", "PIC": "Kevin", "Notes": "", "Source File": "UAT Scenarios - PRJ20260012 - Leadsync dan CRM.xlsx", "Source Modified": "2026-05-07 03:57"}, {"Project": "PRJ20260012 - Leadsync dan CRM", "No": 28, "Scenario ID": "CRM028", "Total Task": 3, "Task Done": 3, "Progress": 100.0, "Status": "Done", "PIC": "Affi", "Notes": "Untuk Fitur reassign hanya bisa untuk BRO tidak bisa untuk CMO Dll", "Source File": "UAT Scenarios - PRJ20260012 - Leadsync dan CRM.xlsx", "Source Modified": "2026-05-07 03:57"}, {"Project": "PRJ20260012 - Leadsync dan CRM", "No": 29, "Scenario ID": "CRM029", "Total Task": 3, "Task Done": 3, "Progress": 100.0, "Status": "Done", "PIC": "Kevin", "Notes": "", "Source File": "UAT Scenarios - PRJ20260012 - Leadsync dan CRM.xlsx", "Source Modified": "2026-05-07 03:57"}]};
+
+    const filters = {
+      project: document.getElementById("projectFilter"),
+      pic: document.getElementById("picFilter"),
+      status: document.getElementById("statusFilter"),
+      search: document.getElementById("searchFilter")
+    };
+
+    function formatPercent(value) {
+      return `${Number(value || 0).toFixed(1)}%`;
+    }
+
+    function fillSelect(select, values, allLabel) {
+      select.innerHTML = "";
+      const allOption = document.createElement("option");
+      allOption.value = "";
+      allOption.textContent = allLabel;
+      select.appendChild(allOption);
+
+      values.forEach((value) => {
+        const option = document.createElement("option");
+        option.value = value;
+        option.textContent = value;
+        select.appendChild(option);
+      });
+    }
+
+    function getFilteredRows() {
+      const project = filters.project.value;
+      const pic = filters.pic.value;
+      const status = filters.status.value;
+      const search = filters.search.value.trim().toLowerCase();
+
+      return dashboardData.rows.filter((row) => {
+        const text = `${row["Scenario ID"]} ${row.Notes} ${row.Project}`.toLowerCase();
+        return (!project || row.Project === project)
+          && (!pic || row.PIC === pic)
+          && (!status || row.Status === status)
+          && (!search || text.includes(search));
+      });
+    }
+
+    function summarizeRows(rows) {
+      const totalTask = rows.reduce((sum, row) => sum + Number(row["Total Task"] || 0), 0);
+      const taskDone = rows.reduce((sum, row) => sum + Number(row["Task Done"] || 0), 0);
+      const doneScenario = rows.filter((row) => String(row.Status).toLowerCase() === "done").length;
+      const projects = new Set(rows.map((row) => row.Project));
+      const latestSource = rows.map((row) => row["Source Modified"]).sort().at(-1) || "-";
+
+      return {
+        totalTask,
+        taskDone,
+        taskOpen: totalTask - taskDone,
+        progress: totalTask ? (taskDone / totalTask) * 100 : 0,
+        totalScenario: rows.length,
+        doneScenario,
+        openScenario: rows.length - doneScenario,
+        totalProject: projects.size,
+        latestSource
+      };
+    }
+
+    function groupRows(rows, groupName) {
+      const groups = new Map();
+
+      rows.forEach((row) => {
+        const key = row[groupName] || "N/A";
+        if (!groups.has(key)) {
+          groups.set(key, { name: key, scenarios: 0, totalTask: 0, taskDone: 0 });
+        }
+        const item = groups.get(key);
+        item.scenarios += 1;
+        item.totalTask += Number(row["Total Task"] || 0);
+        item.taskDone += Number(row["Task Done"] || 0);
+      });
+
+      return Array.from(groups.values())
+        .map((item) => ({
+          ...item,
+          progress: item.totalTask ? (item.taskDone / item.totalTask) * 100 : 0
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    function renderBarChart(elementId, rows, labelMode = "task") {
+      const element = document.getElementById(elementId);
+      element.innerHTML = "";
+
+      if (!rows.length) {
+        element.textContent = "Tidak ada data sesuai filter.";
+        return;
+      }
+
+      rows.forEach((row) => {
+        const wrap = document.createElement("div");
+        wrap.className = "progress-wrap";
+
+        const label = document.createElement("div");
+        label.textContent = row.name;
+
+        const bar = document.createElement("div");
+        bar.className = "bar";
+        const fill = document.createElement("span");
+        fill.style.width = `${Math.max(0, Math.min(row.progress, 100))}%`;
+        bar.appendChild(fill);
+
+        const value = document.createElement("div");
+        value.className = "number";
+        value.textContent = labelMode === "status"
+          ? `${row.scenarios} scenario`
+          : formatPercent(row.progress);
+
+        wrap.append(label, bar, value);
+        element.appendChild(wrap);
+      });
+    }
+
+    function renderKpis(summary) {
+      document.getElementById("kpiProgress").textContent = formatPercent(summary.progress);
+      document.getElementById("kpiTaskNote").textContent = `${summary.taskDone} dari ${summary.totalTask} task selesai`;
+      document.getElementById("kpiDone").textContent = summary.doneScenario;
+      document.getElementById("kpiDoneNote").textContent = `${summary.openScenario} scenario belum done`;
+      document.getElementById("kpiScenario").textContent = summary.totalScenario;
+      document.getElementById("kpiProjectNote").textContent = `${summary.totalProject} project aktif`;
+      document.getElementById("kpiFreshness").textContent = summary.latestSource;
+
+      const degree = Math.max(0, Math.min(summary.progress, 100)) * 3.6;
+      const donut = document.getElementById("overallDonut");
+      donut.style.background = `conic-gradient(var(--green) 0deg, var(--green) ${degree}deg, #e8eef1 ${degree}deg)`;
+      document.getElementById("donutText").textContent = formatPercent(summary.progress);
+
+      document.getElementById("overallNarrative").innerHTML = `
+        <div><strong>${summary.taskDone}</strong> task selesai dari <strong>${summary.totalTask}</strong> total task.</div>
+        <div><strong>${summary.doneScenario}</strong> scenario berstatus Done dari <strong>${summary.totalScenario}</strong> scenario.</div>
+        <div><strong>${summary.taskOpen}</strong> task masih terbuka pada filter saat ini.</div>
+      `;
+    }
+
+    function renderTable(rows) {
+      const tbody = document.getElementById("detailTable");
+      tbody.innerHTML = "";
+
+      rows.forEach((row) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${escapeHtml(row.Project)}</td>
+          <td class="number">${row.No}</td>
+          <td>${escapeHtml(row["Scenario ID"])}</td>
+          <td class="number">${row["Total Task"]}</td>
+          <td class="number">${row["Task Done"]}</td>
+          <td class="number">${formatPercent(row.Progress)}</td>
+          <td><span class="badge">${escapeHtml(row.Status)}</span></td>
+          <td>${escapeHtml(row.PIC)}</td>
+          <td class="notes">${escapeHtml(row.Notes)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById("tableCount").textContent = `${rows.length} data`;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function updateDashboard() {
+      const rows = getFilteredRows();
+      const summary = summarizeRows(rows);
+
+      renderKpis(summary);
+      renderBarChart("picChart", groupRows(rows, "PIC"));
+      renderBarChart("projectChart", groupRows(rows, "Project"));
+      renderBarChart("statusChart", groupRows(rows, "Status"), "status");
+      renderTable(rows);
+    }
+
+    fillSelect(filters.project, dashboardData.projects, "Semua Project");
+    fillSelect(filters.pic, dashboardData.pics, "Semua PIC");
+    fillSelect(filters.status, dashboardData.statuses, "Semua Status");
+
+    Object.values(filters).forEach((filter) => {
+      filter.addEventListener("input", updateDashboard);
+    });
+
+    updateDashboard();
+  </script>
+</body>
+</html>
