@@ -4,7 +4,7 @@ Repo ini berisi dashboard monitoring UAT yang saya buat sebagai **eksperimen pak
 
 Hasilnya cukup menarik. Struktur kode bisa di-generate dengan cepat, meski tetap butuh banyak review dan penyesuaian manual sebelum bisa dipakai tim.
 
-![Dashboard Preview](docs/dashboard-preview.png)
+![Dashboard Preview](dashboard-monitoring-testing/dashboard-preview.png)
 
 ---
 
