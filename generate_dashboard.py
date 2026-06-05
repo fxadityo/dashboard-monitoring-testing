@@ -12,6 +12,8 @@ DATA_DIR = BASE_DIR / "data"
 OUTPUT_DIR = BASE_DIR / "output"
 OUTPUT_FILE = OUTPUT_DIR / "uat_dashboard.html"
 SHEET_NAME = "Dashboard Progress"
+SOURCE_MODIFIED_DISPLAY_FORMAT = "%d/%m/%Y %H:%M"
+SOURCE_MODIFIED_SORT_COLUMN = "Source Modified Sort"
 
 
 MAIN_COLUMNS = ["No", "Scenario ID", "Total Task", "Task Done", "Status", "PIC", "Notes"]
@@ -53,9 +55,11 @@ def clean_dashboard_data(raw_df: pd.DataFrame, file_path: Path) -> pd.DataFrame:
     df = raw_df[MAIN_COLUMNS].copy()
     df = df.dropna(subset=["Scenario ID"])
 
+    source_modified_at = datetime.fromtimestamp(file_path.stat().st_mtime)
     df["Project"] = project_name_from_file(file_path)
     df["Source File"] = file_path.name
-    df["Source Modified"] = datetime.fromtimestamp(file_path.stat().st_mtime).strftime("%Y-%m-%d %H:%M")
+    df["Source Modified"] = source_modified_at.strftime(SOURCE_MODIFIED_DISPLAY_FORMAT)
+    df[SOURCE_MODIFIED_SORT_COLUMN] = source_modified_at.isoformat(timespec="minutes")
 
     df["No"] = pd.to_numeric(df["No"], errors="coerce").fillna(0).astype(int)
     df["Total Task"] = pd.to_numeric(df["Total Task"], errors="coerce").fillna(0).astype(int)
@@ -88,6 +92,17 @@ def load_all_projects() -> pd.DataFrame:
     return pd.concat(frames, ignore_index=True)
 
 
+def get_latest_source_modified(df: pd.DataFrame) -> str:
+    if df.empty:
+        return "-"
+
+    if SOURCE_MODIFIED_SORT_COLUMN in df.columns:
+        latest_index = df[SOURCE_MODIFIED_SORT_COLUMN].idxmax()
+        return str(df.loc[latest_index, "Source Modified"])
+
+    return sorted(df["Source Modified"].unique())[-1]
+
+
 def make_summary(df: pd.DataFrame) -> dict:
     total_scenarios = int(len(df))
     total_tasks = int(df["Total Task"].sum())
@@ -104,7 +119,7 @@ def make_summary(df: pd.DataFrame) -> dict:
         "task_done": task_done,
         "task_open": total_tasks - task_done,
         "progress": progress,
-        "latest_source_modified": sorted(df["Source Modified"].unique())[-1],
+        "latest_source_modified": get_latest_source_modified(df),
     }
 
 
@@ -160,7 +175,7 @@ def make_dashboard_payload(df: pd.DataFrame) -> dict:
 def render_html(payload: dict) -> str:
     generated_at = datetime.now().strftime("%Y-%m-%d %H:%M")
     data_json = json.dumps(payload, ensure_ascii=False).replace("</", "<\\/")
-    title = "Dashboard Monitoring UAT"
+    title = "Dashboard Monitoring UAT - Tim Adityo"
 
     return f"""<!doctype html>
 <html lang="id">

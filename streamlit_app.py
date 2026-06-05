@@ -4,11 +4,11 @@ import altair as alt
 import pandas as pd
 import streamlit as st
 
-from generate_dashboard import DATA_DIR, SHEET_NAME, load_all_projects
+from generate_dashboard import get_latest_source_modified, load_all_projects
 
 
 st.set_page_config(
-    page_title="Dashboard Monitoring UAT",
+    page_title="Dashboard Monitoring UAT - Tim Adityo",
     page_icon="QA",
     layout="wide",
 )
@@ -16,6 +16,42 @@ st.set_page_config(
 
 def format_percent(value: float) -> str:
     return f"{value:.1f}%"
+
+
+def apply_dashboard_style() -> None:
+    st.markdown(
+        """
+        <style>
+        [data-testid="stMetric"] {
+            min-width: 0;
+        }
+
+        [data-testid="stMetricLabel"] p {
+            font-size: 1rem;
+            line-height: 1.25;
+            white-space: nowrap;
+        }
+
+        [data-testid="stMetricValue"] {
+            overflow: visible;
+        }
+
+        [data-testid="stMetricValue"] > div {
+            font-size: clamp(1.9rem, 2.15vw, 2.45rem);
+            line-height: 1.15;
+            overflow: visible;
+            text-overflow: clip;
+            white-space: nowrap;
+        }
+
+        [data-testid="stMetricDelta"] {
+            font-size: 0.9rem;
+            line-height: 1.2;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 def summarize_data(df: pd.DataFrame) -> dict:
@@ -34,7 +70,7 @@ def summarize_data(df: pd.DataFrame) -> dict:
         "task_done": task_done,
         "task_open": total_task - task_done,
         "progress": progress,
-        "latest_source_modified": sorted(df["Source Modified"].unique())[-1] if len(df) else "-",
+        "latest_source_modified": get_latest_source_modified(df),
     }
 
 
@@ -133,24 +169,24 @@ def render_pie_chart(title: str, chart_df: pd.DataFrame) -> None:
 
 
 def render_kpis(summary: dict) -> None:
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3, col4 = st.columns([1, 1, 1, 1.25], gap="large")
 
     col1.metric(
-        "Progress Task",
+        "Task Progress",
         format_percent(summary["progress"]),
-        f"{summary['task_done']} / {summary['total_task']} task",
+        f"{summary['task_done']} / {summary['total_task']} Tasks",
     )
     col2.metric(
-        "Scenario Done",
+        "Scenarios Done",
         summary["done_scenario"],
-        f"{summary['open_scenario']} belum Done",
+        f"{summary['open_scenario']} Not Completed",
     )
     col3.metric(
-        "Total Scenario",
+        "Total Scenarios",
         summary["total_scenario"],
-        f"{summary['total_project']} project",
+        f"{summary['total_project']} Projects",
     )
-    col4.metric("Data Terakhir", summary["latest_source_modified"])
+    col4.metric("Last Modified", summary["latest_source_modified"])
 
 
 def render_charts(df: pd.DataFrame, summary: dict) -> None:
@@ -158,13 +194,13 @@ def render_charts(df: pd.DataFrame, summary: dict) -> None:
 
     with col1:
         render_pie_chart(
-            "Pie Chart - Progress Task",
+            "Task Progress Overview",
             make_task_completion_summary(summary),
         )
 
     with col2:
         render_pie_chart(
-            "Pie Chart - Distribusi Status",
+            "Scenario Status Breakdown",
             make_count_summary(df, "Status"),
         )
 
@@ -172,21 +208,21 @@ def render_charts(df: pd.DataFrame, summary: dict) -> None:
 
     with col3:
         render_pie_chart(
-            "Pie Chart - Total Task per PIC",
+            "Workload by Owner (PIC)",
             make_group_summary(df, "PIC", "Total Task"),
         )
 
     with col4:
         render_pie_chart(
-            "Pie Chart - Scenario per Project",
+            "Scenario Coverage by Project",
             make_count_summary(df, "Project"),
         )
 
 
 def render_detail_table(df: pd.DataFrame) -> None:
     detail_columns = [
-        "Project",
         "No",
+        "Project",
         "Scenario ID",
         "Total Task",
         "Task Done",
@@ -201,13 +237,13 @@ def render_detail_table(df: pd.DataFrame) -> None:
     display_df = df[detail_columns].copy()
     display_df["Progress"] = display_df["Progress"].map(format_percent)
 
-    st.subheader("Detail Scenario UAT")
+    st.subheader("UAT Scenario Insights")
     st.dataframe(display_df, use_container_width=True, hide_index=True)
 
 
 def main() -> None:
-    st.title("Dashboard Monitoring UAT")
-    st.caption(f"Source: `{DATA_DIR}` | Sheet: `{SHEET_NAME}`")
+    apply_dashboard_style()
+    st.title("Dashboard Monitoring UAT - Tim Adityo")
 
     try:
         df = load_all_projects()
