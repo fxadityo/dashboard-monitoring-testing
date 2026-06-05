@@ -20,6 +20,11 @@ SOURCE_MODIFIED_SORT_COLUMN = "Source Modified Sort"
 MAIN_COLUMNS = ["No", "Scenario ID", "Total Task", "Task Done", "Status", "PIC", "Notes"]
 
 
+def normalize_sheet_name(sheet_name: str) -> str:
+    """Samakan nama sheet agar beda huruf besar/kecil dan spasi tidak bikin error."""
+    return " ".join(sheet_name.split()).casefold()
+
+
 def find_excel_files(data_dir: Path) -> list[Path]:
     """Ambil semua file Excel yang bukan temporary file Excel."""
     return sorted(
@@ -43,7 +48,18 @@ def project_name_from_file(file_path: Path) -> str:
 
 def read_dashboard_sheet(file_path: Path) -> pd.DataFrame:
     """Baca sheet Dashboard Progress dari satu workbook."""
-    return pd.read_excel(file_path, sheet_name=SHEET_NAME)
+    excel_file = pd.ExcelFile(file_path)
+    target_sheet = normalize_sheet_name(SHEET_NAME)
+
+    for sheet_name in excel_file.sheet_names:
+        if normalize_sheet_name(sheet_name) == target_sheet:
+            return pd.read_excel(excel_file, sheet_name=sheet_name)
+
+    available_sheets = ", ".join(excel_file.sheet_names)
+    raise ValueError(
+        f"{file_path.name}: sheet '{SHEET_NAME}' tidak ditemukan. "
+        f"Sheet tersedia: {available_sheets}"
+    )
 
 
 def clean_dashboard_data(raw_df: pd.DataFrame, file_path: Path) -> pd.DataFrame:
