@@ -4,6 +4,7 @@ import json
 from datetime import datetime
 from html import escape
 from pathlib import Path
+from typing import Any
 
 import pandas as pd
 
@@ -103,7 +104,7 @@ def get_latest_source_modified(df: pd.DataFrame) -> str:
     return sorted(df["Source Modified"].unique())[-1]
 
 
-def make_summary(df: pd.DataFrame) -> dict:
+def make_summary(df: pd.DataFrame) -> dict[str, Any]:
     total_scenarios = int(len(df))
     total_tasks = int(df["Total Task"].sum())
     task_done = int(df["Task Done"].sum())
@@ -123,7 +124,7 @@ def make_summary(df: pd.DataFrame) -> dict:
     }
 
 
-def make_group_summary(df: pd.DataFrame, group_column: str) -> list[dict]:
+def make_group_summary(df: pd.DataFrame, group_column: str) -> list[dict[str, Any]]:
     grouped = (
         df.groupby(group_column, dropna=False)
         .agg(
@@ -145,7 +146,7 @@ def make_group_summary(df: pd.DataFrame, group_column: str) -> list[dict]:
     return grouped.to_dict(orient="records")
 
 
-def make_dashboard_payload(df: pd.DataFrame) -> dict:
+def make_dashboard_payload(df: pd.DataFrame) -> dict[str, Any]:
     detail_columns = [
         "Project",
         "No",
@@ -172,7 +173,7 @@ def make_dashboard_payload(df: pd.DataFrame) -> dict:
     }
 
 
-def render_html(payload: dict) -> str:
+def render_html(payload: dict[str, Any]) -> str:
     generated_at = datetime.now().strftime("%Y-%m-%d %H:%M")
     data_json = json.dumps(payload, ensure_ascii=False).replace("</", "<\\/")
     title = "Dashboard Monitoring UAT - Tim Adityo"

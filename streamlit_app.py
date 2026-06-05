@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 import altair as alt
 import pandas as pd
 import streamlit as st
@@ -54,7 +56,7 @@ def apply_dashboard_style() -> None:
     )
 
 
-def summarize_data(df: pd.DataFrame) -> dict:
+def summarize_data(df: pd.DataFrame) -> dict[str, Any]:
     total_task = int(df["Total Task"].sum())
     task_done = int(df["Task Done"].sum())
     total_scenario = int(len(df))
@@ -134,7 +136,7 @@ def make_count_summary(df: pd.DataFrame, group_column: str) -> pd.DataFrame:
     )
 
 
-def make_task_completion_summary(summary: dict) -> pd.DataFrame:
+def make_task_completion_summary(summary: dict[str, Any]) -> pd.DataFrame:
     rows = [
         {"Category": "Task Done", "Value": summary["task_done"]},
         {"Category": "Task Open", "Value": summary["task_open"]},
@@ -168,7 +170,7 @@ def render_pie_chart(title: str, chart_df: pd.DataFrame) -> None:
     st.dataframe(chart_df, use_container_width=True, hide_index=True)
 
 
-def render_kpis(summary: dict) -> None:
+def render_kpis(summary: dict[str, Any]) -> None:
     col1, col2, col3, col4 = st.columns([1, 1, 1, 1.25], gap="large")
 
     col1.metric(
@@ -189,7 +191,7 @@ def render_kpis(summary: dict) -> None:
     col4.metric("Last Modified", summary["latest_source_modified"])
 
 
-def render_charts(df: pd.DataFrame, summary: dict) -> None:
+def render_charts(df: pd.DataFrame, summary: dict[str, Any]) -> None:
     col1, col2 = st.columns(2)
 
     with col1:
